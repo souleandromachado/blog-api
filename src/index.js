@@ -68,6 +68,6 @@ app.post("/posts", async (req, res) => {
 
 
 app.listen(port, () => {
-  mongoose.connect('mongodb+srv://leandrosxe:bg_khJG8N4rPhcL@blog-api.sa8j0.mongodb.net/?retryWrites=true&w=majority&appName=blog-api')
+  mongoose.connect('mongodb://root:example@mongo:27017/');
   console.log(`Aplicação rodando na porta ${port}`)
 })
