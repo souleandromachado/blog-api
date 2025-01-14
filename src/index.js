@@ -1,10 +1,15 @@
 const express = require('express')
 const mongoose = require('mongoose');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+
 
 const app = express()
 app.use(express.json())
 const port = 3000
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const Post = mongoose.model('Post', {
   titulo: String,
