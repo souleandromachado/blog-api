@@ -26,7 +26,7 @@ services:
   blog-api:
     depends_on:
       - mongo
-    image: leandrosxe/blog-api:1
+    image: leandrosxe/blog-api:2
     restart: always
     ports:
       - 3000:3000

@@ -1,8 +1,225 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "API para o blog",
-    "description": "Api para manipulação dos textos do blog"
+    "title": "API de Posts do Blog",
+    "description": "API para manipulação dos textos do blog",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "paths": {
+    "/posts": {
+      "get": {
+        "summary": "Recuperar todos os posts",
+        "operationId": "listPosts",
+        "responses": {
+          "200": {
+            "description": "Lista de posts recuperada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar um novo post",
+        "operationId": "createPost",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/search": {
+      "get": {
+        "summary": "Buscar posts com filtros",
+        "operationId": "searchPosts",
+        "parameters": [
+          {
+            "name": "titulo",
+            "in": "query",
+            "description": "Filtro pelo título do post",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conteudo",
+            "in": "query",
+            "description": "Filtro pelo conteúdo do post",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{id}": {
+      "get": {
+        "summary": "Recuperar um post pelo ID",
+        "operationId": "getPostById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do post",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post recuperado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post não encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar um post pelo ID",
+        "operationId": "updatePostById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do post",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Excluir um post pelo ID",
+        "operationId": "deletePostById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do post",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post excluído com sucesso"
+          },
+          "404": {
+            "description": "Post não encontrado"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único do post"
+          },
+          "titulo": {
+            "type": "string",
+            "description": "Título do post"
+          },
+          "conteudo": {
+            "type": "string",
+            "description": "Conteúdo do post"
+          },
+          "autor": {
+            "type": "string",
+            "description": "Autor do post"
+          }
+        },
+        "required": ["titulo", "conteudo", "autor"]
+      }
+    }
   }
-
 }

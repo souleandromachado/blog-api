@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-
-
 const app = express()
 app.use(express.json())
 const port = 3000
