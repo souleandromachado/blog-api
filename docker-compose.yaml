@@ -1,6 +1,3 @@
-# Use root/example as user/password credentials
-version: '3.1'
-
 services:
 
   mongo:
@@ -21,12 +18,14 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_BASICAUTH: true
 
-  blog-api:
+  app:
+    build:
+      context: .
+    container_name: blog-api  
     depends_on:
       - mongo
-    image: leandrosxe/blog-api:2
     restart: always
     ports:
       - 3000:3000
