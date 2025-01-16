@@ -1,5 +1,4 @@
 services:
-
   mongo:
     image: mongo
     restart: always
@@ -7,7 +6,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-    - 27017:27017  
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db # Volume para persistência de dados
 
   mongo-express:
     image: mongo-express
@@ -39,3 +40,7 @@ services:
       MONGO_URL: mongodb://root:example@mongo:27017/testdb
     depends_on:
       - mongo
+
+volumes:
+  mongodb_data:
+    driver: local # Define o volume para uso local
