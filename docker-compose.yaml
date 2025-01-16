@@ -29,3 +29,13 @@ services:
     restart: always
     ports:
       - 3000:3000
+
+  test:
+    build:
+      context: .
+    container_name: test
+    command: ["npm", "test"]
+    environment:
+      MONGO_URL: mongodb://root:example@mongo:27017/testdb
+    depends_on:
+      - mongo
