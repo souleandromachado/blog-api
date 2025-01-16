@@ -1,18 +1,31 @@
-name: Continuos Test
+name: CI/CD for Docker Compose
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  continuos-test:
+  test-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Using Node.jobs
-        uses: actions/setup-node@v2
-        with:
-          node-veersion: 20.x
-      - name: run Test
-        run: |
-          npm install
-          npm test
+      # Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Configurar Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # Validar o arquivo docker-compose.yml
+      - name: Validate docker-compose.yml
+        run: docker-compose config
+
+      # Buildar os serviços definidos no docker-compose.yml
+      - name: Build Docker Compose services
+        run: docker-compose build
+
+      # Testar o serviço "test" definido no docker-compose.yml
+      - name: Run tests
+        run: docker-compose run --rm test
