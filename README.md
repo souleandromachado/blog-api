@@ -1,5 +1,5 @@
 ## Bem-vindo(a)
-Olá, meu nome é Leandro Machado. E esse é o desafio para Pós-graduação da FIAP, para FullStack.
+Olá, esse é o desafio  **Tech Challenge - Fase 2** para o curso de Pós-graduação Full Stack Development da FIAP.
 
 ## Tech Challenge - Fase 2
 
