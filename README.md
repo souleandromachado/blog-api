@@ -25,17 +25,25 @@ O desafio era criar um backend para um blog de uma escola.
 1. Clone este repositório para sua máquina local.
 2. Abra o docker na sua máquina.
 3. Crie uma container e uma imagem com `docker compose up`.
-4. Abra o navegador em localhost na porta escolhida, se receber a mensagem é porque está rodando.
+4. Abra o navegador em (http://locahost:3000/posts), se receber a mensagem é porque está rodando.
 5. Caso queira verificar o resultado dos testes que é feito sempre que a aplicação sobe, é possível através do comando  `docker logs test`
 
 ### Páginas
 
 1. O serviço roda através do caminho http://locahost:3000/posts
 2. A documentação da API se encontra disponível no caminho http://localhost:3000/api-docs
+3. Foi implementado o mongo express, caso queira verificar o banco visualmente basta acessar http://localhost:8081/
 
 
 ### Créditos
 
 Este app foi desenvolvido como parte de um desafio educacional da Faculdade de Informática e Administração Paulista.
+
+Pela seguinte equipe:
+
+- Carla Renata da Silva Brito 
+- Carolina Parra Barlette
+- Leandro Augusto Machado da Silva
+- Vinicius Vicenzo da Silva
 
 ---
