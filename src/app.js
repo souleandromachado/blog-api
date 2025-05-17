@@ -24,7 +24,9 @@ const Aluno = mongoose.model('Aluno', {
 
 const Professor = mongoose.model('Professor', {
   nome: String,
-  materia: String
+  materia: String,
+  login: String,
+  senha: String
 });
 
 
