@@ -10,9 +10,7 @@
       "get": {
         "summary": "Listar todos os posts",
         "responses": {
-          "200": {
-            "description": "Lista de posts"
-          }
+          "200": { "description": "Lista de posts" }
         }
       },
       "post": {
@@ -21,16 +19,12 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Post"
-              }
+              "schema": { "$ref": "#/components/schemas/Post" }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Post criado"
-          }
+          "200": { "description": "Post criado" }
         }
       }
     },
@@ -42,9 +36,7 @@
           { "name": "conteudo", "in": "query", "schema": { "type": "string" } }
         ],
         "responses": {
-          "200": {
-            "description": "Posts encontrados"
-          }
+          "200": { "description": "Posts encontrados" }
         }
       }
     },
@@ -190,6 +182,24 @@
           "200": { "description": "Professor deletado" }
         }
       }
+    },
+    "/auth": {
+      "post": {
+        "summary": "Autenticar professor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Login" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Autenticação bem-sucedida" },
+          "400": { "description": "Dados inválidos" },
+          "401": { "description": "Credenciais inválidas" }
+        }
+      }
     }
   },
   "components": {
@@ -220,6 +230,14 @@
           "senha": { "type": "string" }
         },
         "required": ["nome", "materia", "login", "senha"]
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "login": { "type": "string" },
+          "senha": { "type": "string" }
+        },
+        "required": ["login", "senha"]
       }
     }
   }

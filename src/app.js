@@ -2,15 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
+const SALT_ROUNDS = 10;
 const app = express();
+
 app.use(express.json());
 app.use(cors());
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Models
 const Post = mongoose.model('Post', {
   titulo: String,
   conteudo: String,
@@ -29,7 +32,7 @@ const Professor = mongoose.model('Professor', {
   senha: String
 });
 
-
+/* ROTAS POSTS */
 
 app.get("/posts", async (req, res) => {
   const posts = await Post.find();
@@ -66,9 +69,8 @@ app.delete("/posts/:id", async (req, res) => {
   res.send(post);
 });
 
-/* Area de config de request de alunos */
+/* ROTAS ALUNOS */
 
-// Criar novo aluno
 app.post("/alunos", async (req, res) => {
   try {
     const aluno = new Aluno(req.body);
@@ -79,7 +81,6 @@ app.post("/alunos", async (req, res) => {
   }
 });
 
-// Editar aluno por ID
 app.put("/alunos/:id", async (req, res) => {
   try {
     const aluno = await Aluno.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -90,7 +91,6 @@ app.put("/alunos/:id", async (req, res) => {
   }
 });
 
-// Deletar aluno por ID
 app.delete("/alunos/:id", async (req, res) => {
   try {
     const aluno = await Aluno.findByIdAndDelete(req.params.id);
@@ -109,12 +109,16 @@ app.get("/alunos", async (req, res) => {
   res.send(alunos);
 });
 
-/* Area de config de request de professores */
+/* ROTAS PROFESSORES */
 
-// Criar novo professor
+// Criar novo professor (com hash de senha)
 app.post("/professores", async (req, res) => {
   try {
-    const professor = new Professor(req.body);
+    const { nome, materia, login, senha } = req.body;
+
+    const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
+    const professor = new Professor({ nome, materia, login, senha: senhaHash });
+
     await professor.save();
     res.status(201).send(professor);
   } catch (err) {
@@ -150,6 +154,32 @@ app.get("/professores", async (req, res) => {
   if (professor) filter.professor = new RegExp(professor, 'i');
   const professores = await Professor.find(filter);
   res.send(professores);
+});
+
+/* AUTENTICAÇÃO DE PROFESSOR */
+
+app.post("/auth", async (req, res) => {
+  const { login, senha } = req.body;
+
+  if (!login || !senha) {
+    return res.status(400).send({ error: 'Login e senha são obrigatórios.' });
+  }
+
+  try {
+    const professor = await Professor.findOne({ login });
+    if (!professor) {
+      return res.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    const senhaValida = await bcrypt.compare(senha, professor.senha);
+    if (!senhaValida) {
+      return res.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    res.send({ message: 'Autenticação bem-sucedida', professor });
+  } catch (err) {
+    res.status(500).send({ error: 'Erro no servidor', details: err });
+  }
 });
 
 module.exports = app;
