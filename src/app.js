@@ -22,7 +22,9 @@ const Post = mongoose.model('Post', {
 
 const Aluno = mongoose.model('Aluno', {
   nome: String,
-  curso: String
+  curso: String,
+  login: String,
+  senha: String
 });
 
 const Professor = mongoose.model('Professor', {
@@ -71,9 +73,18 @@ app.delete("/posts/:id", async (req, res) => {
 
 /* ROTAS ALUNOS */
 
+// Criar novo aluno com senha criptografada
 app.post("/alunos", async (req, res) => {
   try {
-    const aluno = new Aluno(req.body);
+    const { nome, curso, login, senha } = req.body;
+
+    if (!login || !senha) {
+      return res.status(400).send({ error: 'Login e senha são obrigatórios.' });
+    }
+
+    const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
+    const aluno = new Aluno({ nome, curso, login, senha: senhaHash });
+
     await aluno.save();
     res.status(201).send(aluno);
   } catch (err) {
@@ -126,7 +137,6 @@ app.post("/professores", async (req, res) => {
   }
 });
 
-// Editar professor por ID
 app.put("/professores/:id", async (req, res) => {
   try {
     const professor = await Professor.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -137,7 +147,6 @@ app.put("/professores/:id", async (req, res) => {
   }
 });
 
-// Deletar professor por ID
 app.delete("/professores/:id", async (req, res) => {
   try {
     const professor = await Professor.findByIdAndDelete(req.params.id);
@@ -157,8 +166,7 @@ app.get("/professores", async (req, res) => {
 });
 
 /* AUTENTICAÇÃO DE PROFESSOR */
-
-app.post("/auth", async (req, res) => {
+app.post("/professores/auth", async (req, res) => {
   const { login, senha } = req.body;
 
   if (!login || !senha) {
@@ -176,7 +184,32 @@ app.post("/auth", async (req, res) => {
       return res.status(401).send({ error: 'Credenciais inválidas' });
     }
 
-    res.send({ message: 'Autenticação bem-sucedida', professor });
+    res.send({ message: 'Autenticação de professor bem-sucedida', professor });
+  } catch (err) {
+    res.status(500).send({ error: 'Erro no servidor', details: err });
+  }
+});
+
+/* AUTENTICAÇÃO DE ALUNO */
+app.post("/alunos/auth", async (req, res) => {
+  const { login, senha } = req.body;
+
+  if (!login || !senha) {
+    return res.status(400).send({ error: 'Login e senha são obrigatórios.' });
+  }
+
+  try {
+    const aluno = await Aluno.findOne({ login });
+    if (!aluno) {
+      return res.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    const senhaValida = await bcrypt.compare(senha, aluno.senha);
+    if (!senhaValida) {
+      return res.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    res.send({ message: 'Autenticação de aluno bem-sucedida', aluno });
   } catch (err) {
     res.status(500).send({ error: 'Erro no servidor', details: err });
   }
