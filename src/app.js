@@ -23,8 +23,7 @@ const Post = mongoose.model('Post', {
 const Aluno = mongoose.model('Aluno', {
   nome: String,
   curso: String,
-  login: String,
-  senha: String
+  matricula: String
 });
 
 const Professor = mongoose.model('Professor', {
@@ -38,7 +37,7 @@ const Professor = mongoose.model('Professor', {
 
 app.get("/posts", async (req, res) => {
   const posts = await Post.find();
-  res.send(posts);
+  res.status(200).send(posts);
 });
 
 app.get("/posts/search", async (req, res) => {
@@ -52,39 +51,34 @@ app.get("/posts/search", async (req, res) => {
 
 app.get("/posts/:id", async (req, res) => {
   const post = await Post.findById(req.params.id);
-  res.send(post);
+  if (!post) return res.status(404).send({ error: 'Post não encontrado' });
+  res.status(200).send(post);
 });
 
 app.post("/posts", async (req, res) => {
   const post = new Post(req.body);
   await post.save();
-  res.send(post);
+  res.status(201).send(post);
 });
 
 app.put("/posts/:id", async (req, res) => {
   const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.send(post);
+  if (!post) return res.status(404).send({ error: 'Post não encontrado' });
+  res.status(200).send(post);
 });
 
 app.delete("/posts/:id", async (req, res) => {
   const post = await Post.findByIdAndDelete(req.params.id);
-  res.send(post);
+  if (!post) return res.status(404).send({ error: 'Post não encontrado' });
+  res.status(200).send({ message: 'Post deletado com sucesso' });
 });
 
 /* ROTAS ALUNOS */
 
-// Criar novo aluno com senha criptografada
 app.post("/alunos", async (req, res) => {
   try {
-    const { nome, curso, login, senha } = req.body;
-
-    if (!login || !senha) {
-      return res.status(400).send({ error: 'Login e senha são obrigatórios.' });
-    }
-
-    const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
-    const aluno = new Aluno({ nome, curso, login, senha: senhaHash });
-
+    const { nome, curso, matricula } = req.body;
+    const aluno = new Aluno({ nome, curso, matricula });
     await aluno.save();
     res.status(201).send(aluno);
   } catch (err) {
@@ -96,7 +90,7 @@ app.put("/alunos/:id", async (req, res) => {
   try {
     const aluno = await Aluno.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!aluno) return res.status(404).send({ error: 'Aluno não encontrado' });
-    res.send(aluno);
+    res.status(200).send(aluno);
   } catch (err) {
     res.status(400).send({ error: 'Erro ao atualizar aluno', details: err });
   }
@@ -106,7 +100,7 @@ app.delete("/alunos/:id", async (req, res) => {
   try {
     const aluno = await Aluno.findByIdAndDelete(req.params.id);
     if (!aluno) return res.status(404).send({ error: 'Aluno não encontrado' });
-    res.send({ message: 'Aluno deletado com sucesso' });
+    res.status(200).send({ message: 'Aluno deletado com sucesso' });
   } catch (err) {
     res.status(400).send({ error: 'Erro ao deletar aluno', details: err });
   }
@@ -117,21 +111,19 @@ app.get("/alunos", async (req, res) => {
   const filter = {};
   if (nome) filter.nome = new RegExp(nome, 'i');
   const alunos = await Aluno.find(filter);
-  res.send(alunos);
+  res.status(200).send(alunos);
 });
 
 /* ROTAS PROFESSORES */
 
-// Criar novo professor (com hash de senha)
 app.post("/professores", async (req, res) => {
   try {
     const { nome, materia, login, senha } = req.body;
-
     const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
     const professor = new Professor({ nome, materia, login, senha: senhaHash });
-
     await professor.save();
-    res.status(201).send(professor);
+    const { senha: _, ...professorSemSenha } = professor.toObject();
+    res.status(201).send(professorSemSenha);
   } catch (err) {
     res.status(400).send({ error: 'Erro ao criar professor', details: err });
   }
@@ -141,7 +133,8 @@ app.put("/professores/:id", async (req, res) => {
   try {
     const professor = await Professor.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!professor) return res.status(404).send({ error: 'Professor não encontrado' });
-    res.send(professor);
+    const { senha, ...professorSemSenha } = professor.toObject();
+    res.status(200).send(professorSemSenha);
   } catch (err) {
     res.status(400).send({ error: 'Erro ao atualizar professor', details: err });
   }
@@ -151,21 +144,23 @@ app.delete("/professores/:id", async (req, res) => {
   try {
     const professor = await Professor.findByIdAndDelete(req.params.id);
     if (!professor) return res.status(404).send({ error: 'Professor não encontrado' });
-    res.send({ message: 'Professor deletado com sucesso' });
+    res.status(200).send({ message: 'Professor deletado com sucesso' });
   } catch (err) {
     res.status(400).send({ error: 'Erro ao deletar professor', details: err });
   }
 });
 
 app.get("/professores", async (req, res) => {
-  const { professor } = req.query;
+  const { nome } = req.query;
   const filter = {};
-  if (professor) filter.professor = new RegExp(professor, 'i');
+  if (nome) filter.nome = new RegExp(nome, 'i');
   const professores = await Professor.find(filter);
-  res.send(professores);
+  const professoresSemSenha = professores.map(({ senha, ...rest }) => rest);
+  res.status(200).send(professoresSemSenha);
 });
 
 /* AUTENTICAÇÃO DE PROFESSOR */
+
 app.post("/professores/auth", async (req, res) => {
   const { login, senha } = req.body;
 
@@ -184,32 +179,8 @@ app.post("/professores/auth", async (req, res) => {
       return res.status(401).send({ error: 'Credenciais inválidas' });
     }
 
-    res.send({ message: 'Autenticação de professor bem-sucedida', professor });
-  } catch (err) {
-    res.status(500).send({ error: 'Erro no servidor', details: err });
-  }
-});
-
-/* AUTENTICAÇÃO DE ALUNO */
-app.post("/alunos/auth", async (req, res) => {
-  const { login, senha } = req.body;
-
-  if (!login || !senha) {
-    return res.status(400).send({ error: 'Login e senha são obrigatórios.' });
-  }
-
-  try {
-    const aluno = await Aluno.findOne({ login });
-    if (!aluno) {
-      return res.status(401).send({ error: 'Credenciais inválidas' });
-    }
-
-    const senhaValida = await bcrypt.compare(senha, aluno.senha);
-    if (!senhaValida) {
-      return res.status(401).send({ error: 'Credenciais inválidas' });
-    }
-
-    res.send({ message: 'Autenticação de aluno bem-sucedida', aluno });
+    const { senha: _, ...professorSemSenha } = professor.toObject();
+    res.status(200).send({ message: 'Autenticação de professor bem-sucedida', professor: professorSemSenha });
   } catch (err) {
     res.status(500).send({ error: 'Erro no servidor', details: err });
   }

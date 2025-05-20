@@ -1,13 +1,13 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "API de Postagens, Alunos e Professores",
-    "version": "1.0.0"
+    "title": "API de Posts, Alunos e Professores",
+    "version": "1.0.0",
+    "description": "Documentação da API Express com rotas para Posts, Alunos, Professores e Autenticação."
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Servidor local"
+      "url": "http://localhost:3000"
     }
   ],
   "paths": {
@@ -21,7 +21,7 @@
         }
       },
       "post": {
-        "summary": "Criar um novo post",
+        "summary": "Criar novo post",
         "requestBody": {
           "required": true,
           "content": {
@@ -33,8 +33,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Post criado com sucesso"
+          "201": {
+            "description": "Post criado"
           }
         }
       }
@@ -64,58 +64,30 @@
     "/posts/{id}": {
       "get": {
         "summary": "Buscar post por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "Post encontrado"
-          }
+          "200": { "description": "Post encontrado" },
+          "404": { "description": "Post não encontrado" }
         }
       },
       "put": {
         "summary": "Atualizar post por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Post" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/Post" } }
           }
         },
         "responses": {
-          "200": {
-            "description": "Post atualizado"
-          }
+          "200": { "description": "Post atualizado" }
         }
       },
       "delete": {
         "summary": "Deletar post por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "Post deletado"
-          }
+          "200": { "description": "Post deletado" }
         }
       }
     },
@@ -130,9 +102,7 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Lista de alunos"
-          }
+          "200": { "description": "Lista de alunos" }
         }
       },
       "post": {
@@ -140,95 +110,48 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Aluno" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/Aluno" } }
           }
         },
         "responses": {
-          "201": {
-            "description": "Aluno criado"
-          }
+          "201": { "description": "Aluno criado" }
         }
       }
     },
     "/alunos/{id}": {
       "put": {
-        "summary": "Atualizar aluno por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "summary": "Atualizar aluno",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Aluno" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/Aluno" } }
           }
         },
         "responses": {
-          "200": {
-            "description": "Aluno atualizado"
-          }
+          "200": { "description": "Aluno atualizado" }
         }
       },
       "delete": {
-        "summary": "Deletar aluno por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "summary": "Deletar aluno",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "Aluno deletado"
-          }
-        }
-      }
-    },
-    "/alunos/auth": {
-      "post": {
-        "summary": "Autenticar aluno",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "login": { "type": "string" },
-                  "senha": { "type": "string" }
-                },
-                "required": ["login", "senha"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Autenticação bem-sucedida"
-          },
-          "401": {
-            "description": "Credenciais inválidas"
-          }
+          "200": { "description": "Aluno deletado" }
         }
       }
     },
     "/professores": {
       "get": {
         "summary": "Listar professores",
-        "responses": {
-          "200": {
-            "description": "Lista de professores"
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "schema": { "type": "string" }
           }
+        ],
+        "responses": {
+          "200": { "description": "Lista de professores" }
         }
       },
       "post": {
@@ -236,57 +159,33 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Professor" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/Professor" } }
           }
         },
         "responses": {
-          "201": {
-            "description": "Professor criado"
-          }
+          "201": { "description": "Professor criado" }
         }
       }
     },
     "/professores/{id}": {
       "put": {
-        "summary": "Atualizar professor por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "summary": "Atualizar professor",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Professor" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/Professor" } }
           }
         },
         "responses": {
-          "200": {
-            "description": "Professor atualizado"
-          }
+          "200": { "description": "Professor atualizado" }
         }
       },
       "delete": {
-        "summary": "Deletar professor por ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
+        "summary": "Deletar professor",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "Professor deletado"
-          }
+          "200": { "description": "Professor deletado" }
         }
       }
     },
@@ -309,12 +208,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Autenticação bem-sucedida"
-          },
-          "401": {
-            "description": "Credenciais inválidas"
-          }
+          "200": { "description": "Autenticação bem-sucedida" },
+          "401": { "description": "Credenciais inválidas" }
         }
       }
     }
@@ -327,16 +222,17 @@
           "titulo": { "type": "string" },
           "conteudo": { "type": "string" },
           "autor": { "type": "string" }
-        }
+        },
+        "required": ["titulo", "conteudo", "autor"]
       },
       "Aluno": {
         "type": "object",
         "properties": {
           "nome": { "type": "string" },
           "curso": { "type": "string" },
-          "login": { "type": "string" },
-          "senha": { "type": "string" }
-        }
+          "matricula": { "type": "string" }
+        },
+        "required": ["nome", "curso", "matricula"]
       },
       "Professor": {
         "type": "object",
@@ -345,7 +241,8 @@
           "materia": { "type": "string" },
           "login": { "type": "string" },
           "senha": { "type": "string" }
-        }
+        },
+        "required": ["nome", "materia", "login", "senha"]
       }
     }
   }
