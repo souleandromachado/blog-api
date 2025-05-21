@@ -122,21 +122,28 @@ app.post("/professores", async (req, res) => {
     const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
     const professor = new Professor({ nome, materia, login, senha: senhaHash });
     await professor.save();
-    const { senha: _, ...professorSemSenha } = professor.toObject();
+    
+    const { senha: _, ...professorSemSenha } = professor.toObject(); // limpa o objeto
     res.status(201).send(professorSemSenha);
   } catch (err) {
-    res.status(400).send({ error: 'Erro ao criar professor', details: err });
+    res.status(400).send({ error: 'Erro ao criar professor', details: err.message });
   }
 });
 
 app.put("/professores/:id", async (req, res) => {
   try {
-    const professor = await Professor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const professor = await Professor.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    
     if (!professor) return res.status(404).send({ error: 'Professor não encontrado' });
+
     const { senha, ...professorSemSenha } = professor.toObject();
     res.status(200).send(professorSemSenha);
   } catch (err) {
-    res.status(400).send({ error: 'Erro ao atualizar professor', details: err });
+    res.status(400).send({ error: 'Erro ao atualizar professor', details: err.message });
   }
 });
 
@@ -144,19 +151,30 @@ app.delete("/professores/:id", async (req, res) => {
   try {
     const professor = await Professor.findByIdAndDelete(req.params.id);
     if (!professor) return res.status(404).send({ error: 'Professor não encontrado' });
+
     res.status(200).send({ message: 'Professor deletado com sucesso' });
   } catch (err) {
-    res.status(400).send({ error: 'Erro ao deletar professor', details: err });
+    res.status(400).send({ error: 'Erro ao deletar professor', details: err.message });
   }
 });
 
 app.get("/professores", async (req, res) => {
-  const { nome } = req.query;
-  const filter = {};
-  if (nome) filter.nome = new RegExp(nome, 'i');
-  const professores = await Professor.find(filter);
-  const professoresSemSenha = professores.map(({ senha, ...rest }) => rest);
-  res.status(200).send(professoresSemSenha);
+  try {
+    const { nome } = req.query;
+    const filter = {};
+    if (nome) filter.nome = new RegExp(nome, 'i');
+
+    const professores = await Professor.find(filter);
+    
+    const professoresSemSenha = professores.map(p => {
+      const { senha, ...semSenha } = p.toObject(); // garantir que o objeto seja limpo
+      return semSenha;
+    });
+
+    res.status(200).send(professoresSemSenha);
+  } catch (err) {
+    res.status(400).send({ error: 'Erro ao buscar professores', details: err.message });
+  }
 });
 
 /* AUTENTICAÇÃO DE PROFESSOR */
